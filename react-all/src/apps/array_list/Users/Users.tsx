@@ -1,38 +1,51 @@
-// Pobierz użytkowników https://jsonplaceholder.typicode.com/users , wyświetl ich i każdemu dodaj możliwość jego usunięcia, do tego też powinien wystarczyć tylko 1 useState
+import { useState, useEffect } from 'react';
+import './App.css';
 
-import { useState } from "react";
-
-interface User {
+interface Users {
   id: number;
   name: string;
   username: string;
+  email: string;
 }
-export const Users = () => {
-  const [state, setState] = useState<User[]>([]);
 
-  const fetchData = () => {
-    fetch("https://jsonplaceholder.typicode.com/users", {
-      method: "GET",
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    })
-      .then((response) => response.json())
-      .then((json) => console.log(json));
+function App() {
+  const [state, setState] = useState<Users[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await fetch(
+        'https://jsonplaceholder.typicode.com/users'
+      );
+      const jsonData = await response.json();
+      setState(jsonData);
+    };
+    fetchData();
+  }, []);
+
+  const removeUser = (user: object) => {
+    setState(state.filter((el) => el !== user));
   };
 
   return (
-    <div>       
+    <>
       <div>
-      <button onClick={fetchData}>Wyświetl dane użytkownika</button> 
-        <ul> 
-            {state.map((user) => ( 
-                <li key={user.id}> 
-                    {user.name} ({user.username}) 
-                </li> 
-            ))} 
-        </ul> 
+        <ul>
+          {state.map((user) => (
+            <li key={user.id}>
+              {user.name} ({user.email})
+              <button
+                onClick={() => {
+                  removeUser(user);
+                }}
+              >
+                X
+              </button>
+            </li>
+          ))}
+        </ul>
       </div>
-    </div>
+    </>
   );
-};
+}
+
+export default App;
